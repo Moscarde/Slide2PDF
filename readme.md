@@ -13,7 +13,7 @@ Transforme PDFs de apresentações em documentos formatados prontos para impress
 7. O arquivo convertido será salvo em `./outputPDF/` 
 
 ## Exemplo de saída
-<img src="preview/preview.jpg" alt="preview" height=800/>
-<img src="preview/preview (2).jpg" alt="preview" height=800/> 
+<img src="preview/preview.jpg" alt="preview" height=500/>
+<img src="preview/preview (2).jpg" alt="preview" height=500/> 
 
 Input PDF ~> Output PDF
