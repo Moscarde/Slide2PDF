@@ -1,7 +1,7 @@
 const fs = require("fs");
 const pdfkit = require("pdfkit");
 
-function getImagesInDir(dir) {
+function getImgFiles(dir) {
 	return new Promise((resolve, reject) => {
 		const imgsFiles = fs
 			.readdirSync(dir)
@@ -16,67 +16,71 @@ function getImagesInDir(dir) {
 	});
 }
 
-function png2pdf(imgFiles, title, subtitle, outputPDF, inputPath) {
+function png2pdf(imgFiles, title, subtitle, inputDir, outputPath) {
 	const pdf = new pdfkit();
-	const pageWidth = pdf.page.width; //612
+	const pageWidth = pdf.page.width;
 	const pageHeight = pdf.page.height;
+	const imgWidth = 480;
+	const imgHeight = 330;
 
-	pdf.addPage();
-	const margemRect = 5;
-	pdf.lineWidth(8);
-	pdf
-		.rect((pageWidth - 500) / 2, 100, 500, 150)
-		.lineJoin("round")
-		.stroke("#B6454B");
-	pdf
-		.rect((pageWidth - 500) / 2 + 50, 300, 400, 1)
-		.lineJoin("round")
-		.stroke("#B6454B");
+	const cover = true;
+	if (cover) {
+		pdf.lineWidth(8);
+		pdf
+			.rect((pageWidth - 500) / 2, 100, 500, 150)
+			.lineJoin("round")
+			.stroke("#B6454B");
+		pdf
+			.rect((pageWidth - 500) / 2 + 50, 300, 400, 1)
+			.lineJoin("round")
+			.stroke("#B6454B");
 
-	pdf.fontSize(24).text(" ", { align: "center" });
-	pdf.fontSize(24).text(" ", { align: "center" });
-	pdf.fontSize(24).text(" ", { align: "center" });
-	pdf.fontSize(24).text(title, { align: "center" });
-	pdf.fontSize(18).text(subtitle, { align: "center" });
-
-	for (let i = 0; i < imgFiles.length; i += 2) {
-		const image1 = `${inputPath}/${imgFiles[i]}`;
-		const image2 = i + 1 < imgFiles.length ? `${inputPath}/${imgFiles[i+1]}` : null;
+		pdf.fontSize(24).text(" ", { align: "center" });
+		pdf.fontSize(24).text(" ", { align: "center" });
+		pdf.fontSize(24).text(" ", { align: "center" });
+		pdf.fontSize(24).text(title, { align: "center" });
+		pdf.fontSize(18).text(subtitle, { align: "center" });
 
 		pdf.addPage();
+	}
 
-		//margem
-		const margem = 7;
+	for (let i = 0; i < imgFiles.length; i += 2) {
+		const image1 = `${inputDir}/${imgFiles[i]}`;
+		const image2 = i + 1 < imgFiles.length ? `${inputDir}/${imgFiles[i + 1]}` : null;
+
+		// cria uma nova página
+		if (i != 0) pdf.addPage();
 
 		if (image1) {
-			pdf.rect((pageWidth - 500) / 2 - margem, 30 - margem, 841 / 1.8 + 2 * margem, 595 / 1.8 + 2 * margem).fill("#EEE");
-			pdf.image(image1, (pageWidth - 500) / 2, 30, { width: 841 / 1.8, height: 595 / 1.8 });
+			pdf.image(image1, 70, 40, { width: imgWidth, height: imgHeight });
+			pdf.rect(70, 40, imgWidth, imgHeight).lineWidth(8).stroke("#EEE");
 		}
 
 		if (image2) {
-			pdf
-				.rect((pageWidth - 500) / 2 - margem, pageHeight / 2 - margem, 841 / 1.8 + 2 * margem, 595 / 1.8 + 2 * margem)
-				.fill("#EEE");
-			pdf.image(image2, (pageWidth - 500) / 2, pageHeight / 2, { width: 841 / 1.8, height: 595 / 1.8 });
+			pdf.image(image2, 70, 400, { width: imgWidth, height: imgHeight });
+			pdf.rect(70, 400, imgWidth, imgHeight).stroke("#EEE");
 		}
 
-		// Add page number marker
+		// adiciona um marcador no rodapé
 		pdf
 			.fontSize(12)
 			.fillColor("black")
 			.text(`Page ${i / 2 + 1}`, pageWidth - 50, pageHeight - 30, { align: "right" });
 	}
 
-	pdf.pipe(fs.createWriteStream(outputPDF));
+	pdf.pipe(fs.createWriteStream(outputPath));
 	pdf.end();
 }
 
+let outputImgDir = `${__dirname}/outputPNGs/teste`;
+
 async function main() {
 	try {
-		const imgFiles = await getImagesInDir(__dirname + "/outputPNGs/teste");
-		png2pdf(imgFiles, "Titulo", "Subtitulo", 'outpur.pdf', __dirname + "/outputPNGs/teste");
+		const imgFiles = await getImgFiles(outputImgDir);
+		png2pdf(imgFiles, "Titulo", "Subtitulo", outputImgDir, "output.pdf");
 	} catch (err) {
 		console.error(err);
 	}
 }
+
 main();
