@@ -2,21 +2,21 @@ const filepix = require("filepix");
 const fs = require("fs");
 const readline = require("readline");
 const pdfkit = require("pdfkit");
-const { resolve } = require('path');
+const { resolve } = require("path");
 
 let fileName = "";
 let outputImgDir = "";
 
-function pdf2png(fileName) {
+async function pdf2png(fileName) {
 	outputImgDir = `${__dirname}/outputPNGs/${fileName.replace(".pdf", "")}`;
 
 	if (!fs.existsSync(outputImgDir)) {
 		fs.mkdirSync(outputImgDir, { recursive: true });
 	}
 
-	const outputImgsPath = `${outputImgDir}/${fileName.replace(".pdf", "")}`;
+	const outputImgsPath = `${outputImgDir}/${fileName.replace(".pdf", "-")}`;
 
-	filepix.PDF2img(fileName, outputImgsPath);
+	await filepix.PDF2img(fileName, outputImgsPath);
 }
 
 function getFilesInDirectory(directory) {
@@ -79,6 +79,9 @@ function getImgFiles(dir) {
 }
 
 function img2pdf(imgFiles, inputDir, outputPdfDir) {
+	console.log(imgFiles);
+	console.log(inputDir);
+	console.log(outputPdfDir);
 	const pdf = new pdfkit();
 	const pageWidth = pdf.page.width;
 	const pageHeight = pdf.page.height;
@@ -137,7 +140,6 @@ function img2pdf(imgFiles, inputDir, outputPdfDir) {
 	outputPdfPath = `${outputPdfDir}/${fileName.replace(".pdf", "-converted.pdf")}`;
 	pdf.pipe(fs.createWriteStream(outputPdfPath));
 	pdf.end();
-
 }
 
 async function main() {
@@ -156,17 +158,20 @@ async function main() {
 		// executa a conversão do arquivo para pngs
 		await pdf2png(fileName);
 
+		// setTimeout não é a melhor abordagem, mas a biblioteca usada para conversão nao funciona
+		// muito bem com async/await e promises
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+
 		const imgFiles = await getImgFiles(outputImgDir);
 
 		const outputPdfDir = `${__dirname}/outputPDFs`;
 		await img2pdf(imgFiles, outputImgDir, outputPdfDir);
 
+		console.log("Conversão finalizada.");
 	} catch (err) {
 		// pega possiveis erros
 		console.error(err);
 	}
 }
 
-main().then(() => {
-	console.log("Conversão finalizada.");
-});
+main();
