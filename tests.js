@@ -16,33 +16,33 @@ function getImgFiles(dir) {
 	});
 }
 
-function png2pdf(imgFiles, title, subtitle, inputDir, outputPath) {
+function png2pdf(imgFiles, inputDir, outputPath) {
 	const pdf = new pdfkit();
 	const pageWidth = pdf.page.width;
 	const pageHeight = pdf.page.height;
 	const imgWidth = 480;
 	const imgHeight = 330;
 
-	const cover = true;
-	if (cover) {
-		pdf.lineWidth(8);
-		pdf
-			.rect((pageWidth - 500) / 2, 100, 500, 150)
-			.lineJoin("round")
-			.stroke("#B6454B");
-		pdf
-			.rect((pageWidth - 500) / 2 + 50, 300, 400, 1)
-			.lineJoin("round")
-			.stroke("#B6454B");
+	// const cover = false;
+	// if (cover) {
+	// 	pdf.lineWidth(8);
+	// 	pdf
+	// 		.rect((pageWidth - 500) / 2, 100, 500, 150)
+	// 		.lineJoin("round")
+	// 		.stroke("#B6454B");
+	// 	pdf
+	// 		.rect((pageWidth - 500) / 2 + 50, 300, 400, 1)
+	// 		.lineJoin("round")
+	// 		.stroke("#B6454B");
 
-		pdf.fontSize(24).text(" ", { align: "center" });
-		pdf.fontSize(24).text(" ", { align: "center" });
-		pdf.fontSize(24).text(" ", { align: "center" });
-		pdf.fontSize(24).text(title, { align: "center" });
-		pdf.fontSize(18).text(subtitle, { align: "center" });
+	// 	pdf.fontSize(24).text(" ", { align: "center" });
+	// 	pdf.fontSize(24).text(" ", { align: "center" });
+	// 	pdf.fontSize(24).text(" ", { align: "center" });
+	// 	pdf.fontSize(24).text(title, { align: "center" });
+	// 	pdf.fontSize(18).text(subtitle, { align: "center" });
 
-		pdf.addPage();
-	}
+	// 	pdf.addPage();
+	// }
 
 	for (let i = 0; i < imgFiles.length; i += 2) {
 		const image1 = `${inputDir}/${imgFiles[i]}`;
@@ -77,9 +77,9 @@ let outputImgDir = `${__dirname}/outputPNGs/teste`;
 async function main() {
 	try {
 		const imgFiles = await getImgFiles(outputImgDir);
-		png2pdf(imgFiles, "Titulo", "Subtitulo", outputImgDir, "output.pdf");
+		png2pdf(imgFiles, outputImgDir, "output.pdf");
 	} catch (err) {
-		console.error(err);
+		console.error(err)
 	}
 }
 
