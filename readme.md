@@ -1,4 +1,4 @@
-# SlideShow2Print
+# Slide2PDF
 
 Transforme PDFs de apresentações em documentos formatados prontos para impressão!
 
