@@ -7,6 +7,7 @@ const { resolve } = require("path");
 let fileName = "";
 let outputImgDir = "";
 
+// converts a PDF file to a series of PNG images
 async function pdf2png(fileName) {
 	outputImgDir = `${__dirname}/outputPNGs/${fileName.replace(".pdf", "")}`;
 
@@ -19,6 +20,7 @@ async function pdf2png(fileName) {
 	await filepix.PDF2img(fileName, outputImgsPath);
 }
 
+// returns the files in a directory
 function getFilesInDirectory(directory) {
 	return new Promise((resolve, reject) => {
 		fs.readdir(directory, (err, files) => {
@@ -32,6 +34,7 @@ function getFilesInDirectory(directory) {
 	});
 }
 
+// displays the available files
 function displayFiles(files) {
 	console.log("Arquivos disponíveis:");
 	files.forEach((file, index) => {
@@ -39,6 +42,7 @@ function displayFiles(files) {
 	});
 }
 
+// Prompts the user to choose a file
 function chooseFile(rl, files) {
 	return new Promise((resolve, reject) => {
 		rl.question("Escolha o número do arquivo desejado: ", (answer) => {
@@ -63,6 +67,7 @@ function chooseFile(rl, files) {
 	});
 }
 
+// returns the image files in a directory
 function getImgFiles(dir) {
 	return new Promise((resolve, reject) => {
 		const imgsFiles = fs
@@ -78,6 +83,7 @@ function getImgFiles(dir) {
 	});
 }
 
+// converts a series of PNG files to a formated PDF
 function img2pdf(imgFiles, inputDir, outputPdfDir) {
 	console.log(imgFiles);
 	console.log(inputDir);
@@ -87,6 +93,8 @@ function img2pdf(imgFiles, inputDir, outputPdfDir) {
 	const pageHeight = pdf.page.height;
 	const imgWidth = 480;
 	const imgHeight = 330;
+
+	// ~~~~cover option~~~~
 
 	// const cover = false;
 	// if (cover) {
@@ -109,11 +117,13 @@ function img2pdf(imgFiles, inputDir, outputPdfDir) {
 	// 	pdf.addPage();
 	// }
 
+	// ~~~~end cover option~~~~
+
 	for (let i = 0; i < imgFiles.length; i += 2) {
 		const image1 = `${inputDir}/${imgFiles[i]}`;
 		const image2 = i + 1 < imgFiles.length ? `${inputDir}/${imgFiles[i + 1]}` : null;
 
-		// cria uma nova página
+		// add new page
 		if (i != 0) pdf.addPage();
 
 		if (image1) {
@@ -126,7 +136,7 @@ function img2pdf(imgFiles, inputDir, outputPdfDir) {
 			pdf.rect(70, 400, imgWidth, imgHeight).stroke("#EEE");
 		}
 
-		// adiciona um marcador no rodapé
+		// add footer counter
 		pdf
 			.fontSize(12)
 			.fillColor("black")
@@ -144,22 +154,18 @@ function img2pdf(imgFiles, inputDir, outputPdfDir) {
 
 async function main() {
 	try {
-		// lista arquivos no diretório
 		const files = await getFilesInDirectory(__dirname);
 		displayFiles(files);
 
-		// pede para o usuário escolher um arquivo pdf
 		const rl = readline.createInterface({
 			input: process.stdin,
 			output: process.stdout
 		});
 		fileName = await chooseFile(rl, files);
 
-		// executa a conversão do arquivo para pngs
 		await pdf2png(fileName);
 
-		// setTimeout não é a melhor abordagem, mas a biblioteca usada para conversão nao funciona
-		// muito bem com async/await e promises
+		// setTimeout não é a melhor abordagem, mas a biblioteca usada para conversão nao funcionamuito bem com async/await e promises
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 
 		const imgFiles = await getImgFiles(outputImgDir);
@@ -169,7 +175,6 @@ async function main() {
 
 		console.log("Conversão finalizada.");
 	} catch (err) {
-		// pega possiveis erros
 		console.error(err);
 	}
 }
