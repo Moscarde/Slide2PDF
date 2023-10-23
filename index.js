@@ -73,11 +73,15 @@ function getImgFiles(dir) {
 		const imgsFiles = fs
 			.readdirSync(dir)
 			.filter((file) => file.endsWith(".jpg") || file.endsWith(".png"))
-			.sort((a, b) => {
-				const aNum = parseInt(a.match(/\d+/)[0]);
-				const bNum = parseInt(b.match(/\d+/)[0]);
-				return aNum - bNum;
-			});
+			.map((file) => {
+                const match = file.match(/(\d+)\.(jpg|png)$/); 
+                return {
+                  name: file,
+                  number: match ? parseInt(match[1]) : -1, 
+                };
+              })
+              .sort((a, b) => a.number - b.number) 
+              .map((fileData) => fileData.name); 
 
 		resolve(imgsFiles);
 	});
